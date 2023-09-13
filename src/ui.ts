@@ -10,8 +10,9 @@ export interface File {
 
 export class Ui {
   private tree?: contrib.Widgets.TreeElement;
+  private footerText?: blessed.Widgets.TextElement;
   private rootNode: contrib.Widgets.TreeNode = { extended: true, children: {} };
-  private invalidateTimer?: number;
+  private invalidateTimer?: unknown;
 
   constructor(private path: string) {}
 
@@ -27,6 +28,12 @@ export class Ui {
         node.file = file;
       }
     }
+    this.invalidate();
+  }
+
+  handleFileSelected(file: File) {
+    this.footerText!.setContent(file.path + ' [' + file.chunk + ']');
+    this.invalidate();
   }
 
   invalidate() {
@@ -34,7 +41,10 @@ export class Ui {
       return;
     }
 
-    setTimeout(() => this.rerender(), 16);
+    this.invalidateTimer = setTimeout(() => {
+      this.rerender();
+      this.invalidateTimer = undefined;
+    }, 16);
   }
 
   rerender() {
@@ -49,12 +59,25 @@ export class Ui {
     screen.key(['escape', 'q', 'C-c'], function (ch, key) {
       return process.exit(0);
     });
-    this.tree = contrib.tree();
+
+    // Footer text
+    this.footerText = blessed.text({
+      bottom: 0,
+    });
+    screen.append(this.footerText);
+
+    // Tree
+    this.tree = contrib.tree({
+      height: '100%-2',
+    });
+
+    this.tree.on('select', ({ file }: { file: File }) => this.handleFileSelected(file));
     this.tree.setData(this.rootNode);
     this.tree.focus();
     screen.append(this.tree);
-    screen.render();
 
+    // Render and start requesting sourcemap data
+    screen.render();
     sourcemapFs(this.path, this);
   }
 }
