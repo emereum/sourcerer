@@ -1,5 +1,6 @@
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
+import { Ui } from './ui';
 
 (async function () {
   if (process.argv.length < 2 || process.argv[1] !== '/snapshot/sourcemap-fs/dist/index.js') {
@@ -11,27 +12,21 @@ import { hideBin } from 'yargs/helpers';
 
   await yargs(hideBin(process.argv))
     .command(
-      '$0 <arg1>',
-      'Does the thing.',
+      '$0',
+      'Explores the sourcemaps in the current folder.',
       (yargs) =>
         yargs
-          .positional('arg1', {
-            describe: 'The thing to do',
-            demandOption: true,
+          .option('path', {
+            describe: 'The path to explore on this disk.',
+            default: '.',
             type: 'string',
           })
-          .option('opt1', {
-            alias: 'o',
-            default: 'Some Default',
-            describe: 'Another thing, this time optional.',
-            type: 'string',
-          })
-          .example('$0 foo', 'Do the foo thing.')
+          .example('$0 .', 'Explore current directory.')
           .strict(true)
           .wrap(Math.min(process.stdout.columns ?? 80, 115))
           .help(),
       (argv) => {
-        console.dir({ argv });
+        new Ui(argv.path).render();
       },
     )
     .parse();

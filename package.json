@@ -11,6 +11,10 @@
     "format": "prettier --write ./src"
   },
   "dependencies": {
+    "@types/blessed": "^0.1.22",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0",
+    "source-map-explorer": "^2.5.3",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
