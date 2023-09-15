@@ -17,7 +17,7 @@ export async function sourcemapFs(sourcemapsPath: string, ui: Ui) {
         .filter((x) => !x.endsWith('.css'))
         .map((source) => ({
           path: source.indexOf('webpack:///') === 0 ? source.substring(11) : source,
-          chunk: sourcemapFile,
+          chunks: [path.basename(sourcemapFile)],
           bytes: -1,
         }));
 
