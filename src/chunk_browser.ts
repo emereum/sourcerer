@@ -52,7 +52,7 @@ export class ChunkBrowser extends Tree implements Tool {
       chooser.setDataset({
         modules: intersect(chunk.modules, this.dataset.modules),
         chunks: [chunk],
-        symbols: this.dataset?.symbols,
+        symbols: intersect(chunk.symbols, this.dataset.symbols),
         loaded: true,
       });
       chooser.setParentTool(Tools.ChunkBrowser);

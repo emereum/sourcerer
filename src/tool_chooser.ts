@@ -150,10 +150,16 @@ export class ToolChooser extends Box implements Tool {
         },
       });
     }
-
     if (parentTool !== Tools.SymbolBrowser) {
       this.addButton({
-        label: () => `symbols`,
+        label: () => {
+          if(this.dataset == null) {
+            return 'symbols';
+          }
+          const bytes = this.dataset.symbols.map(x => x.length).reduce((prev, next) => prev + next, 0);
+          const kiloBytes = Math.ceil(bytes / 1024);
+          return `symbols (x${kiloBytes.toLocaleString()} kB)`;
+        },
         items: () => this.dataset?.symbols,
         action: () => {
           if (this.dataset == null) {

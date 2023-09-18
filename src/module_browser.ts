@@ -59,7 +59,7 @@ export class ModuleBrowser extends Tree implements Tool {
       toolChooser.setDataset({
         modules: [module],
         chunks: intersect(module.chunks, this.dataset.chunks),
-        symbols: this.dataset?.symbols,
+        symbols: [module.symbols],
         loaded: true,
       });
       toolChooser.setParentTool(Tools.ModuleBrowser);

@@ -6,7 +6,7 @@ import { SourceMapConsumer } from 'source-map';
 export interface FilteredDataset {
   modules: Module[];
   chunks: Chunk[];
-  symbols?: string[];
+  symbols: string[];
   loaded: boolean;
   subscribeProgress?: (handler: (pct: number) => void) => void;
 }
@@ -15,7 +15,7 @@ export interface Module {
   path: string;
   rawPath: string;
   chunks: Chunk[];
-  symbolsRaw?: string;
+  symbols: string;
   mappings?: Mapping[];
 }
 
@@ -30,6 +30,7 @@ export interface Mapping {
 export interface Chunk {
   path: string;
   modules: Module[];
+  symbols: string[];
   areSymbolsParsedOrParsing: boolean;
 }
 
@@ -38,6 +39,7 @@ export function sourcemapFs(sourcemapsPath: string) {
   const dataset: FilteredDataset = {
     modules: [],
     chunks: [],
+    symbols: [],
     loaded: false,
     subscribeProgress: (handler: (pct: number) => void) => {
       subscribers.push(handler);
@@ -67,6 +69,7 @@ async function loadSourcemapsIntoDataset(
     const chunk: Chunk = {
       path: sourcemapFile,
       modules: [],
+      symbols: [],
       areSymbolsParsedOrParsing: false,
     };
 
@@ -74,23 +77,22 @@ async function loadSourcemapsIntoDataset(
       throw new Error('Number of sources and sourcesContent did not matching in ' + sourcemapFile);
     }
 
-    const sourcesAndSymbols =
-      sourcemap.sourcesContent != null
-        ? sourcemap.sources.map((source, i) => ({ source, symbolsRaw: sourcemap.sourcesContent![i] }))
-        : sourcemap.sources.map((source) => ({ source, symbolsRaw: undefined }));
+    const sourcesAndSymbols = sourcemap.sources.map((source, i) => ({ source, symbols: sourcemap.sourcesContent?.[i] ?? '' }));
 
     const modules: Module[] = sourcesAndSymbols
       .filter(({ source }) => !source.endsWith('.css'))
-      .map(({ source, symbolsRaw }) => ({
+      .map(({ source, symbols }) => ({
         path: source.indexOf('webpack:///') === 0 ? source.substring(11) : source,
         rawPath: source,
         chunks: [chunk],
-        symbolsRaw,
+        symbols,
       }));
     chunk.modules.push(...modules);
+    chunk.symbols.push(...modules.map(x => x.symbols));
 
     dataset.chunks.push(chunk);
     dataset.modules.push(...modules);
+    dataset.symbols.push(...modules.map(x => x.symbols));
 
     for (const subscriber of subscribers) {
       subscriber(++loadedChunks / sourcemapFiles.length);

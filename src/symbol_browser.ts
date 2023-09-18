@@ -112,14 +112,14 @@ export class SymbolBrowser extends Box implements Tool {
     }
 
     const regex = toSearchRegex(search);
-    const modules = this.dataset.modules.filter((x) => x.symbolsRaw != null && regex.test(x.symbolsRaw));
+    const modules = this.dataset.modules;
 
     await loadSourceMappings(this.dataset);
 
     const foundSymbols: string[] = [];
     const foundModules: Module[] = [];
     for (const module of modules) {
-      if (module.symbolsRaw == null || module.mappings == null) {
+      if (module.mappings == null) {
         continue;
       }
 
@@ -136,7 +136,7 @@ export class SymbolBrowser extends Box implements Tool {
         }
       }
 
-      const lines = module.symbolsRaw.split(/(?:\r\n|[\n\v\f\r\x85\u2028\u2029])/);
+      const lines = module.symbols.split(/(?:\r\n|[\n\v\f\r\x85\u2028\u2029])/);
       let modulesHasMatches = false;
       for (const lineNumber of Object.keys(lineMappings)) {
         const line = lines[Number(lineNumber)];
@@ -222,6 +222,6 @@ function toSearchRegex(string) {
   // the line (since the code is always tabbed in)
   // alternatively, we could trim leading whitespace of all sourcesContent and
   // rejig all the mappings accordingly...
-  const withWildcards = sanitised.replace(/[*]/g, '[^ ]*');
+  const withWildcards = sanitised.replace(/[*]/g, '[a-z0-9_\\$]*');
   return new RegExp(withWildcards, 'ig');
 }
