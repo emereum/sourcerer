@@ -73,20 +73,6 @@ export class ChunkBrowser extends Tree implements Tool {
     }
 
     const { chunks } = this.dataset;
-
-    // Set gauge
-    /*const values = Array.from(Object.values(chunks));
-            const sum = values.reduce((prev, next) => prev + next, 0);
-            const chunkPcts = Array.from(Object.entries(node.chunks))
-              .map(([chunk, count]) => [chunk, count / sum] as const)
-              .sort((a, b) => b[1] - a[1]);
-      
-            this.gauge!.show();
-            splendidlySetData(
-              this.gauge!,
-              chunkPcts.map(([chunk, pct]) => pct),
-            );*/
-
     const rootNode: Node = { extended: true, children: {} };
     for (const chunk of chunks) {
       const name = path.basename(chunk.path, '.js.map') + ` (m${chunk.modules.length.toLocaleString()})`;
@@ -97,43 +83,3 @@ export class ChunkBrowser extends Tree implements Tool {
     this.screen.render();
   }
 }
-
-/**
- * Shows a large number of data without screwing up the gauge too much if we have many small percentages.
- * @param gauge
- * @param data Each item should be in the range 0 to 1 and add up to 1 total.
- * @param gaugeWidth Number of columns the gauge is allocated
- */
-/*function splendidlySetData(gauge: contrib.Widgets.GaugeElement, data: number[]) {
-    // data should add up to 1, should be sorted with largest percentages first.
-    const showData: number[] = [];
-    let width = 0;
-    let thisWidth = 0;
-    for (const datum of data) {
-      let rounded = datum;
-      if (rounded >= 0.01) {
-        rounded = Math.floor(rounded * 100) / 100;
-      } else if (rounded >= 0.001) {
-        rounded = Math.floor(rounded * 1000) / 1000;
-      } else if (rounded >= 0.0001) {
-        rounded = Math.floor(rounded * 10000) / 10000;
-      } else if (rounded >= 0.00001) {
-        rounded = Math.floor(rounded * 100000) / 100000;
-      }
-      thisWidth = rounded * (gauge.canvasSize.width - 3);
-  
-      if (width + thisWidth > gauge.canvasSize.width - 3) {
-        // do not decrease this any further otherwise 50/50splits will only shwo the first half
-        break;
-      }
-  
-      width += thisWidth;
-      showData.push(rounded);
-    }
-    if (showData.length && width - thisWidth + showData[showData.length - 1].toString().length > gauge.canvasSize.width - 3) {
-      showData.pop();
-    }
-  
-    gauge.setData(showData);
-  }
-  */

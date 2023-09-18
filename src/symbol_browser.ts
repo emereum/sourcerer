@@ -111,13 +111,16 @@ export class SymbolBrowser extends Box implements Tool {
       return;
     }
 
+    // todo: Right now we don't narrow on any sources provided in the filtered dataset,
+    // we just go to the modules and grab their sources. we should probably do the former.
     const regex = toSearchRegex(search);
     const modules = this.dataset.modules;
 
     await loadSourceMappings(this.dataset);
 
-    const foundSymbols: string[] = [];
+    const foundLines: string[] = [];
     const foundModules: Module[] = [];
+    const formattedLines: string[] = [];
     for (const module of modules) {
       if (module.mappings == null) {
         continue;
@@ -137,59 +140,55 @@ export class SymbolBrowser extends Box implements Tool {
       }
 
       const lines = module.symbols.split(/(?:\r\n|[\n\v\f\r\x85\u2028\u2029])/);
-      let modulesHasMatches = false;
+      let moduleHasMatches = false;
       for (const lineNumber of Object.keys(lineMappings)) {
         const line = lines[Number(lineNumber)];
+        if(line == null) {
+          // should never happen?
+          continue;
+        }
         const earliestMappedColumn = lineMappings[lineNumber];
-        const matches = line?.matchAll(regex);
-        for (const match of matches) {
-          if (match.index == null || match.index < earliestMappedColumn) {
-            continue;
-          }
-
-          // we have a symbol that is mapped to the output (a valid match)
-          const context = 64;
-          const preContextStart = Math.max(0, match.index - context);
-          const preContextEnd = match.index;
-          const postContextStart = Math.min(match.index + match[0].length, line.length);
-          const postContextEnd = Math.min(line.length, postContextStart + context);
-
-          const matchWithContext =
-            `{#111111-fg}${preContextStart > 0 ? '...' : blessed.escape('^')}{/#111111-fg}` +
-            (
-              blessed.escape(line.substring(preContextStart, preContextEnd)) +
+        const matches = Array.from(line.matchAll(regex)).filter((x) => x.index != null && x.index >= earliestMappedColumn);
+        if (matches.length) {
+          moduleHasMatches = true;
+          let formattedLine = `${line}{#111111-fg}${blessed.escape('$')}{/#111111-fg}`;
+          for (let i = matches.length - 1; i >= 0; i--) {
+            const match = matches[i];
+            const index = match.index!;
+            formattedLine =
+              formattedLine.substring(0, index) +
               '{green-bg}{bold}' +
-              blessed.escape(match[0]) +
+              formattedLine.substring(index, index + match[0].length) +
               '{/bold}{/green-bg}' +
-              blessed.escape(line.substring(postContextStart, postContextEnd))
-            ).trim() +
-            `{#111111-fg}${postContextEnd < line.length ? '...' : blessed.escape('$')}{/#111111-fg}`;
-
-          foundSymbols.push(matchWithContext);
-          modulesHasMatches = true;
+              formattedLine.substring(index + match[0].length);
+          }
+          foundLines.push(line);
+          formattedLines.push(formattedLine.replace(/( +)/g, '{#111111-fg}•{/#111111-fg}'));
         }
       }
-      if (modulesHasMatches) {
+      if (moduleHasMatches) {
         foundModules.push(module);
       }
     }
-
-    if (foundSymbols.length > 0) {
+    if (foundLines.length > 0) {
       this.nextDataset = {
         modules: foundModules,
         chunks: intersect(
           this.dataset.chunks,
           foundModules.flatMap((module) => module.chunks),
         ),
-        symbols: foundSymbols,
+        symbols: foundLines,
         loaded: true,
       };
 
       const summary =
-        `{center}{bold}{#cccccc-bg} symbols (x${foundSymbols.length.toLocaleString()}) ` +
+        `{center}{bold}{#cccccc-bg} symbols (${foundLines
+          .map((x) => x.length)
+          .reduce((prev, next) => prev + next, 0)
+          .toLocaleString()} kB) ` +
         `modules (x${this.nextDataset.modules.length.toLocaleString()}) ` +
         `chunks (x${this.nextDataset.chunks.length.toLocaleString()}) {/#cccccc-bg}{/bold}{/center}\n\n`;
-      this.resultsBox.setContent(summary + foundSymbols.join('\n'));
+      this.resultsBox.setContent(summary + formattedLines.join('\n'));
     } else {
       this.nextDataset = undefined;
       this.resultsBox.setContent('{#111111-fg}(no matches){/#111111-fg}');

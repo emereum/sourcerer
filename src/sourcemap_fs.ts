@@ -88,11 +88,11 @@ async function loadSourcemapsIntoDataset(
         symbols,
       }));
     chunk.modules.push(...modules);
-    chunk.symbols.push(...modules.map(x => x.symbols));
+    chunk.symbols.push(...modules.map((x) => x.symbols));
 
     dataset.chunks.push(chunk);
     dataset.modules.push(...modules);
-    dataset.symbols.push(...modules.map(x => x.symbols));
+    dataset.symbols.push(...modules.map((x) => x.symbols));
 
     for (const subscriber of subscribers) {
       subscriber(++loadedChunks / sourcemapFiles.length);
