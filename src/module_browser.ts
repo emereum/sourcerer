@@ -34,7 +34,7 @@ export class ModuleBrowser extends Tree implements Tool {
           template: {
             lines: true,
           },
-          keys: ['right', 'space'],
+          keys: ['right', 'enter', 'space'],
         },
         opts,
       ) as contrib.Widgets.TreeOptions,
@@ -51,6 +51,9 @@ export class ModuleBrowser extends Tree implements Tool {
       const { module } = this.nodeLines![this.rows.getItemIndex(this.rows.selected)] as unknown as Node;
 
       if (module == null || this.dataset == null) {
+        // assume we are trying to drill down
+        this.rows.down();
+        this.screen.render();
         return;
       }
 

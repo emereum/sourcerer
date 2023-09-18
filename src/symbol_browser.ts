@@ -208,9 +208,6 @@ export class SymbolBrowser extends Box implements Tool {
     if (this.dataset == null) {
       return;
     }
-
-    // todo
-
     this.screen.render();
   }
 }

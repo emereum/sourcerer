@@ -27,7 +27,7 @@ export class ChunkBrowser extends Tree implements Tool {
           width: 30,
           height: '100%',
           border: { type: 'line', fg: 'cyan' },
-          keys: ['right', 'space'],
+          keys: ['right', 'enter', 'space'],
         },
         opts,
       ) as contrib.Widgets.TreeOptions,
