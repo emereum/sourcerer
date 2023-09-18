@@ -1,4 +1,4 @@
-# sourcemap-fs
+# sourcerer
 
 
 ## Setup
@@ -6,10 +6,10 @@
 ```sh
 # (once)
 yarn && yarn prepack
-sudo ln -s $PWD/bin/sourcemap-fs /usr/local/bin
+sudo ln -s $PWD/bin/sourcerer /usr/local/bin
 
 # (every time)
-sourcemap-fs
+sourcerer
 ```
 
 ## Development
@@ -17,5 +17,5 @@ sourcemap-fs
 ```sh
 yarn format # runs prettier
 yarn start # builds and runs using node directly
-yarn prepack # builds and packages an executable into bin/sourcemap-fs
+yarn prepack # builds and packages an executable into bin/sourcerer
 ```

@@ -3,9 +3,9 @@ import { hideBin } from 'yargs/helpers';
 import { Ui } from './ui';
 
 (async function () {
-  if (process.argv.length < 2 || process.argv[1] !== '/snapshot/sourcemap-fs/dist/index.js') {
+  if (process.argv.length < 2 || process.argv[1] !== '/snapshot/sourcerer/dist/index.js') {
     console.warn(
-      'It looks like you are running sourcemap-fs using the node runtime directly. ' +
+      'It looks like you are running sourcerer using the node runtime directly. ' +
         'This product can also be built as a binary by following the instructions in the readme.',
     );
   }

@@ -1,11 +1,11 @@
 {
-  "name": "sourcemap-fs",
+  "name": "sourcerer",
   "version": "1.0.0",
   "main": "dist/index.js",
   "author": "emereum",
   "license": "MIT",
   "scripts": {
-    "prepack": "yarn build && yarn pkg --t node14-macos-x64 -o bin/sourcemap-fs dist/index.js",
+    "prepack": "yarn build && yarn pkg --t node14-macos-x64 -o bin/sourcerer dist/index.js",
     "start": "yarn build && node dist/index.js",
     "build": "rollup -c rollup.config.js --bundleConfigAsCjs",
     "format": "prettier --write ./src"
