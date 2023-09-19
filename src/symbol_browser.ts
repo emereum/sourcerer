@@ -143,7 +143,7 @@ export class SymbolBrowser extends Box implements Tool {
       let moduleHasMatches = false;
       for (const lineNumber of Object.keys(lineMappings)) {
         const line = lines[Number(lineNumber)];
-        if(line == null) {
+        if (line == null) {
           // should never happen?
           continue;
         }

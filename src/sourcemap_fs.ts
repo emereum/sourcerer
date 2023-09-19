@@ -29,6 +29,7 @@ export interface Mapping {
 
 export interface Chunk {
   path: string;
+  sort: number;
   modules: Module[];
   symbols: string[];
   areSymbolsParsedOrParsing: boolean;
@@ -67,7 +68,11 @@ async function loadSourcemapsIntoDataset(
     );
 
     const chunk: Chunk = {
-      path: sourcemapFile,
+      path: sourcemap.file ?? sourcemapFile,
+      sort:
+        sourcemap['x_sort'] ??
+        sourcemap.sourcesContent?.filter((x) => x != null).reduce((prev, next) => prev + next.length, 0) ??
+        0,
       modules: [],
       symbols: [],
       areSymbolsParsedOrParsing: false,
@@ -99,7 +104,7 @@ async function loadSourcemapsIntoDataset(
     }
   }
 
-  dataset.chunks.sort((a, b) => a.path.localeCompare(b.path));
+  dataset.chunks.sort((a, b) => b.sort - a.sort);
   dataset.modules.sort((a, b) => a.path.localeCompare(b.path));
   dataset.loaded = true;
 }
